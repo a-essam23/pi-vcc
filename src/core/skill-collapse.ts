@@ -33,3 +33,6 @@ export const collapseSkillLines = (lines: string[]): string[] => {
 const SKILL_BLOCK_RE = /<skill\s+name="([^"]+)"[^>]*>[\s\S]*?(?:<\/skill>|$)/g;
 export const collapseSkillText = (text: string): string =>
   text.replace(SKILL_BLOCK_RE, (_, name) => `[skill: ${name}]`);
+
+/** Remove skill blocks completely when their contents must not enter a summary. */
+export const stripSkillText = (text: string): string => text.replace(SKILL_BLOCK_RE, "");

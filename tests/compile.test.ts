@@ -37,6 +37,21 @@ describe("compile", () => {
     expect(r).toContain("- New task");
   });
 
+  it("removes skill bodies before building any compaction section", () => {
+    const skillBody = "Always use the internal deployment checklist and never skip approval";
+    const r = compile({
+      messages: [
+        userMsg(
+          `<skill name="deploy" location="/skills/deploy/SKILL.md">\n${skillBody}\n</skill>\nFix the deployment timeout`,
+        ),
+      ],
+    });
+
+    expect(r).toContain("Fix the deployment timeout");
+    expect(r).not.toContain(skillBody);
+    expect(r).not.toContain("internal deployment checklist");
+  });
+
   it("appends brief transcript on merge", () => {
     const previousSummary = [
       "[Session Goal]\n- Original goal",

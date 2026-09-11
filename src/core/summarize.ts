@@ -5,6 +5,7 @@ import { filterNoise } from "./filter-noise";
 import { buildSections } from "./build-sections";
 import { formatSummary, capBrief, BRIEF_MAX_LINES, RECALL_NOTE, wrapLongLines } from "./format";
 import { selectRankedBriefBlocks, type BriefRankingOptions } from "./rank";
+import { stripSkillText } from "./skill-collapse";
 
 export interface CompileInput {
   messages: Message[];
@@ -170,8 +171,13 @@ interface CompileWithBriefBlocksOptions {
   preserveFreshBriefOnMerge?: boolean;
 }
 
+const stripSkillBlocks = (blocks: ReturnType<typeof normalize>): ReturnType<typeof normalize> =>
+  blocks
+    .map((block) => block.kind === "user" ? { ...block, text: stripSkillText(block.text) } : block)
+    .filter((block) => block.kind !== "user" || block.text.trim());
+
 const compileWithBriefBlocks = (input: CompileInput, options: CompileWithBriefBlocksOptions = {}): string => {
-  const blocks = filterNoise(normalize(input.messages));
+  const blocks = stripSkillBlocks(filterNoise(normalize(input.messages)));
   const briefBlocks = options.briefBlocksFor?.(blocks);
   const data = buildSections({ blocks, briefBlocks });
   const fresh = formatSummary(data, { capBriefTranscript: options.capFreshBrief ?? true });
